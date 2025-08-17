@@ -1,5 +1,6 @@
 streamlit
-google.generativeai
+langgraph==0.2.45
+langchain-google-genai==2.0.4
 sqlite
 pandas
 numpy
