@@ -1,5 +1,7 @@
 import streamlit as st
 import genai as gen
+import pandas as pd
+import database_tools as db_tools
 
 st.title("🍔🚗 Drive-Thru Chatbot")
 st.write(
@@ -14,11 +16,10 @@ if st.session_state == {}:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+st.header("Order Chatbot")
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
-#tab1, tab2 = st.tabs(["Order Chatbot", "Order Database"])
 
 if len(st.session_state.messages) == 0:
     with st.chat_message("assistant"):
@@ -36,5 +37,6 @@ if prompt:
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.write(response)
 
-#with tab2:
-#    pass
+st.header("Orders")
+df = pd.DataFrame(db_tools.get_orders(), columns=["Order ID", "Customer", "Order Details"])
+st.table(df)

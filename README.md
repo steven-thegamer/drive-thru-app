@@ -1,4 +1,4 @@
-# 🎈 Drive Thru Prototype App
+# 🍔🚗  Drive Thru Prototype App
 
 This is a prototype app for a restaurant drive thru. Temporarily,
 the app uses chatbot instead of using speech-to-text feature.

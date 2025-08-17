@@ -66,3 +66,17 @@ def get_menu_item_price(menu_item : str) -> str:
     return f"The price of '{menu_item}' is ${all_menu_items[0][3]:.2f}."
 
 db_tools = [create_new_menuitem, create_new_customer, create_new_order, show_all_menu_items, get_menu_item_price]
+
+def get_orders() -> list[list[str]]:
+    print('Get all orders...')
+    all_orders = execute_query("SELECT * FROM orders;")
+    if len(all_orders) == 0:
+        return []
+    result = []
+    for order in all_orders:
+        order_id = order[0]
+        customer_id = order[2]
+        customer_name = execute_query(f"SELECT customer_name FROM customer WHERE id = {customer_id};")[0][0]
+        order_details = execute_query(f"SELECT menuitem.menu_name, orderdetails.quantity FROM orderdetails JOIN menuitem ON orderdetails.menu_id = menuitem.id WHERE orderdetails.order_id = {order_id};")
+        result.append([order_id, customer_name, str(order_details)])
+    return result
