@@ -3,6 +3,7 @@ import os
 import sqlite3
 import database_tools as db_tools
 from google.api_core import retry
+import streamlit as st
 
 db_conn = None
 retry_policy = None
@@ -20,9 +21,8 @@ You are to use the following step by step guide when aiding user in a purchase:
 
 def initialize():
     global db_conn, retry_policy, model, chat_model
-    my_api_key = "AIzaSyBZBDPYC9ia1rHOTI5xhv70KqfbSGT1utM"
-    os.environ["GOOGLE_API_KEY"] = my_api_key
-    genai.configure(api_key=my_api_key)
+    os.environ["GOOGLE_API_KEY"] = st.secrets["API_KEY"]
+    genai.configure(api_key=st.secrets["API_KEY"])
     db_file = "sample.db"
     db_conn = sqlite3.connect(db_file, check_same_thread=False)
     model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=db_tools.db_tools, system_instruction=instructions)
