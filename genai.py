@@ -1,24 +1,30 @@
 import google.generativeai as genai
 import os
 import sqlite3
+import database_tools as db_tools
+from google.api_core import retry
 
 db_conn = None
+retry_policy = None
+tools = [db_tools.create_new_menuitem, db_tools.create_new_customer, db_tools.create_new_order]
 
 def initialize():
-    global db_conn
+    global db_conn, retry_policy
     my_api_key = "AIzaSyBj0dAZyXhbH7ZK-t2n38gzLHJCG9_rGkQ"
     os.environ["GOOGLE_API_KEY"] = my_api_key
     genai.configure(api_key=my_api_key)
     db_file = "sample.db"
     db_conn = sqlite3.connect(db_file)
+    #model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=tools, system_instruction=instruction)
+    retry_policy = {"retry": retry.Retry(predicate=retry.if_transient_error)}
     create_database()
 
 def create_database():
     drop_all_tables()
     create_menuitem_database()
+    create_customer_database()
     create_orders_database()
     create_orderdetails_database()
-    create_customer_database()
     insert_default_menuitem()
     insert_default_customer()
 
@@ -53,7 +59,7 @@ def create_orders_database():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        order_datetime DATETIME NOT NULL DEFAULT CURRENT_DATETIME(),
+        order_datetime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         customer_id INTEGER NOT NULL,
         FOREIGN KEY (customer_id) REFERENCES customer(id)
     );
@@ -111,3 +117,6 @@ def insert_default_customer():
         ('anonymous');
 """)
     db_conn.commit()
+
+def chat(prompt):
+    return chat.send_message(prompt, request_options=retry_policy).text

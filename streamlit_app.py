@@ -1,5 +1,6 @@
 import streamlit as st
 import genai as gen
+import database_tools as db_tools
 
 gen.initialize()
 
@@ -14,7 +15,7 @@ with st.chat_message("assistant"):
 prompt = st.chat_input("Say something...")
 if prompt:
     with st.chat_message("user"):
-        st.write("Hello!")
+        st.write(prompt)
     with st.chat_message("assistant"):
         response = gen.chat(prompt)
         st.write(response)
