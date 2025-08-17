@@ -20,7 +20,7 @@ You are to use the following step by step guide when aiding user in a purchase:
 
 def initialize():
     global db_conn, retry_policy, model, chat_model
-    my_api_key = API_KEY
+    my_api_key = "AIzaSyBZBDPYC9ia1rHOTI5xhv70KqfbSGT1utM"
     os.environ["GOOGLE_API_KEY"] = my_api_key
     genai.configure(api_key=my_api_key)
     db_file = "sample.db"
