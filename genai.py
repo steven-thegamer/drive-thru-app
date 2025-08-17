@@ -24,7 +24,7 @@ def initialize():
     os.environ["GOOGLE_API_KEY"] = my_api_key
     genai.configure(api_key=my_api_key)
     db_file = "sample.db"
-    db_conn = sqlite3.connect(db_file)
+    db_conn = sqlite3.connect(db_file, check_same_thread=False)
     model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=db_tools.db_tools, system_instruction=instructions)
     retry_policy = {"retry": retry.Retry(predicate=retry.if_transient_error)}
     chat_model = model.start_chat(enable_automatic_function_calling=True)
