@@ -8,7 +8,7 @@ db_conn = None
 retry_policy = None
 tools = db_tools.db_tools
 model = None
-chat = None
+chat_model = None
 
 instructions = """You are a assistant handling customer queries for drive through ordering. Using the provided tools, you are to help guide the user perform a purchase.
 You are to use the following step by step guide when aiding user in a purchase:
@@ -19,15 +19,15 @@ You are to use the following step by step guide when aiding user in a purchase:
 """
 
 def initialize():
-    global db_conn, retry_policy, model, chat
-    my_api_key = "AIzaSyBj0dAZyXhbH7ZK-t2n38gzLHJCG9_rGkQ"
+    global db_conn, retry_policy, model, chat_model
+    my_api_key = "AIzaSyDaBSwwM7PWPugrbkOBYlA3UNJG8pmRVi0"
     os.environ["GOOGLE_API_KEY"] = my_api_key
     genai.configure(api_key=my_api_key)
     db_file = "sample.db"
     db_conn = sqlite3.connect(db_file)
     model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=db_tools.db_tools, system_instruction=instructions)
     retry_policy = {"retry": retry.Retry(predicate=retry.if_transient_error)}
-    chat = model.start_chat(enable_automatic_function_calling=True)
+    chat_model = model.start_chat(enable_automatic_function_calling=True)
     create_database()
 
 def create_database():
@@ -43,13 +43,11 @@ def drop_all_tables():
     global db_conn
     cursor = db_conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS menuitem;")
-    db_conn.commit()
     cursor.execute("DROP TABLE IF EXISTS orders;")
-    db_conn.commit()
     cursor.execute("DROP TABLE IF EXISTS orderdetails;")
-    db_conn.commit()
     cursor.execute("DROP TABLE IF EXISTS customer;")
     db_conn.commit()
+    cursor.close()
 
 def create_menuitem_database():
     global db_conn
@@ -62,6 +60,7 @@ def create_menuitem_database():
         price DECIMAL(10, 2) NOT NULL
     );
     """)
+    cursor.close()
     db_conn.commit()
 
 def create_orders_database():
@@ -75,6 +74,7 @@ def create_orders_database():
         FOREIGN KEY (customer_id) REFERENCES customer(id)
     );
     """)
+    cursor.close()
     db_conn.commit()
 
 def create_orderdetails_database():
@@ -90,6 +90,7 @@ def create_orderdetails_database():
         FOREIGN KEY (menu_id) REFERENCES menuitem(id)
     );
     """)
+    cursor.close()
     db_conn.commit()
 
 def create_customer_database():
@@ -101,6 +102,7 @@ def create_customer_database():
         customer_name VARCHAR(255) NOT NULL DEFAULT "anonymous"
     );
     """)
+    cursor.close()
     db_conn.commit()
 
 def insert_default_menuitem():
@@ -115,6 +117,7 @@ def insert_default_menuitem():
         ('Coca Cola', "Cola drink" , 2.99),
         ('Milkshake', "Sweet and delicious drink" , 29.99);
 """)
+    cursor.close()
     db_conn.commit()
 
 def insert_default_customer():
@@ -127,7 +130,8 @@ def insert_default_customer():
         ('Frank Brown'),
         ('anonymous');
 """)
+    cursor.close()
     db_conn.commit()
 
 def chat(prompt):
-    return chat.send_message(prompt, request_options=retry_policy).text
+    return chat_model.send_message(prompt, request_options=retry_policy).text

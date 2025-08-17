@@ -3,13 +3,14 @@ import genai
 def execute_query(sql: str) -> list[list[str]]:
     """Execute an SQL statement, returning the results."""
     print(' - DB CALL: execute_query')
-
     cursor = genai.db_conn.cursor()
-
     cursor.execute(sql)
-    return cursor.fetchall()
+    result = cursor.fetchall()
+    cursor.close()
+    return result
 
 def create_new_menuitem(menu_name : str, menu_description : str, price : float) -> str:
+    print('Create new menu item...')
     all_menu_items = execute_query("select * from menuitem where menu_name = '{menu_name}'")
     if len(all_menu_items) > 0:
         return "Item already exists!"
@@ -17,20 +18,21 @@ def create_new_menuitem(menu_name : str, menu_description : str, price : float) 
     return "Menu item has been created!"
 
 def create_new_customer(customer_name : str) -> str:
-    all_customers = execute_query(f"select * from customer where customer_name = {customer_name}")
+    print('Create new customer...')
+    all_customers = execute_query(f"select * from customer where customer_name = '{customer_name}'")
     if len(all_customers) > 0:
        return "Customer already exists!"
     execute_query(f"INSERT INTO customer (customer_name) VALUES ('{customer_name}');")
     return "Customer has been registered!"
 
 def create_new_order(customer_name : str, menu_items_quantity : list[list[str,int]]) -> str:
-    all_customers = execute_query(f"select * from customer where customer_name = {customer_name}")
+    print('Create new order...')
+    all_customers = execute_query(f"select * from customer where customer_name = '{customer_name}'")
     customer_id = -1
     if len(all_customers) > 0:
         customer_id = all_customers[0][0]
     else:
-        execute_query(f"INSERT INTO customer (customer_name) VALUES ('{customer_name}');")
-        customer_id = execute_query(f"SELECT * FROM customer WHERE customer_name = '{customer_name}';")[0][0]
+        create_new_customer(customer_name)
     execute_query(f"INSERT INTO orders (customer_id) VALUES ({customer_id});")
     order_id = execute_query("SELECT * FROM orders ORDER BY id DESC LIMIT 1;")[0][0]
     for menu_item in menu_items_quantity:
@@ -52,4 +54,10 @@ def show_all_menu_items() -> str:
         result += f"ID: {item[0]}, Name: {item[1]}, Description: {item[2]}, Price: ${item[3]:.2f}\n"
     return result
 
-db_tools = [create_new_menuitem, create_new_customer, create_new_order, show_all_menu_items]
+def get_menu_item_price(menu_item : str) -> str:
+    all_menu_items = execute_query(f"SELECT * FROM menuitem WHERE menu_name = '{menu_item}';")
+    if len(all_menu_items) == 0:
+        return f"Menu item '{menu_item}' does not exist!"
+    return f"The price of '{menu_item}' is ${all_menu_items[0][3]:.2f}."
+
+db_tools = [create_new_menuitem, create_new_customer, create_new_order, show_all_menu_items, get_menu_item_price]
