@@ -6,17 +6,28 @@ from google.api_core import retry
 
 db_conn = None
 retry_policy = None
-tools = [db_tools.create_new_menuitem, db_tools.create_new_customer, db_tools.create_new_order]
+tools = db_tools.db_tools
+model = None
+chat = None
+
+instructions = """You are a assistant handling customer queries for drive through ordering. Using the provided tools, you are to help guide the user perform a purchase.
+You are to use the following step by step guide when aiding user in a purchase:
+- Retrieve their customer id using their name from the database. If not, kindly register them using the tools available
+- Provide the user with the restaurant menu. You may suggest menu for the user to order.
+- Take note of user orders. Ensure that you ask the user if they would like to add more menus until they are satisfied
+- Submit user order using `create_new_order` tool and instruct the user to wait 10-15 minutes for their order.
+"""
 
 def initialize():
-    global db_conn, retry_policy
+    global db_conn, retry_policy, model, chat
     my_api_key = "AIzaSyBj0dAZyXhbH7ZK-t2n38gzLHJCG9_rGkQ"
     os.environ["GOOGLE_API_KEY"] = my_api_key
     genai.configure(api_key=my_api_key)
     db_file = "sample.db"
     db_conn = sqlite3.connect(db_file)
-    #model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=tools, system_instruction=instruction)
+    model = genai.GenerativeModel("models/gemini-1.5-flash-latest", tools=db_tools.db_tools, system_instruction=instructions)
     retry_policy = {"retry": retry.Retry(predicate=retry.if_transient_error)}
+    chat = model.start_chat(enable_automatic_function_calling=True)
     create_database()
 
 def create_database():

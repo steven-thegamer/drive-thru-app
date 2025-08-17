@@ -1,6 +1,5 @@
 import streamlit as st
 import genai as gen
-import database_tools as db_tools
 
 gen.initialize()
 
@@ -10,9 +9,12 @@ st.write(
     "This program uses a text input instead of audio input. "
     "This program also uses a local database instead of a remote database. "
 )
+
 with st.chat_message("assistant"):
     st.write("Welcome to McTexas! How can I help you today?")
+
 prompt = st.chat_input("Say something...")
+
 if prompt:
     with st.chat_message("user"):
         st.write(prompt)

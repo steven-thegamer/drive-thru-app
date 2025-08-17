@@ -43,4 +43,13 @@ def create_new_order(customer_name : str, menu_items_quantity : list[list[str,in
         execute_query(f"INSERT INTO orderdetails (order_id, menu_id, quantity) VALUES ({order_id}, {menu_item_id}, {menu_item[1]});")
     return f"Order has been created for customer '{customer_name}' with order ID {order_id}."
 
-db_tools = [create_new_menuitem, create_new_customer, create_new_order]
+def show_all_menu_items() -> str:
+    all_menu_items = execute_query("SELECT * FROM menuitem;")
+    if len(all_menu_items) == 0:
+        return "No menu items available."
+    result = "Menu Items:\n"
+    for item in all_menu_items:
+        result += f"ID: {item[0]}, Name: {item[1]}, Description: {item[2]}, Price: ${item[3]:.2f}\n"
+    return result
+
+db_tools = [create_new_menuitem, create_new_customer, create_new_order, show_all_menu_items]

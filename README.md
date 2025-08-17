@@ -1,6 +1,8 @@
-# 🎈 Blank app template
+# 🎈 Drive Thru Prototype App
 
-A simple Streamlit app template for you to modify!
+This is a prototype app for a restaurant drive thru. Temporarily,
+the app uses chatbot instead of using speech-to-text feature.
+The app also uses a local database instead of a server-based.
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
 
