@@ -4,3 +4,5 @@ langchain-google-genai==2.0.4
 sqlite3
 pandas
 numpy
+google-generativeai
+google-api-core
